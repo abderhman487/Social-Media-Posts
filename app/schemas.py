@@ -31,14 +31,24 @@ class PostCreate(PostBase):
     pass    
 
 
-class PostResponse(PostBase):
+class PostResponse(BaseModel):
+    title : str
+    content : str
+    published : bool = True
     id: int
     created_at: datetime
     creator_id: int
     creator: UserResponse
     
     class Config:
-        orm_mode = True    
+        orm_mode = True   
+
+class PostWithVotes(BaseModel):
+    Post: PostResponse
+    votes: int
+
+    class Config:
+        orm_mode = True         
 
 
 class Token(BaseModel):
