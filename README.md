@@ -11,6 +11,8 @@ Posts API is a FastAPI application for post management, providing a RESTful API 
 - **Post Management**: Create, edit, delete, and view posts
 - **Voting System**: Allow users to vote on posts
 - **Enhanced Querying**: Search, filtering, and pagination
+- **Database Migrations**: Using Alembic for schema changes and version control
+- **CORS Support**: Cross-Origin Resource Sharing for frontend integration
 
 ## Technologies Used
 
@@ -20,6 +22,8 @@ Posts API is a FastAPI application for post management, providing a RESTful API 
 - **Pydantic**: For data validation and conversion
 - **JWT**: For authentication and session management
 - **Bcrypt**: For password encryption
+- **Alembic**: For database migrations and schema versioning
+- **CORS Middleware**: For handling cross-origin requests
 
 ## Project Structure
 
@@ -38,6 +42,11 @@ app/
     ├── user.py
     ├── auth.py
     └── vote.py
+alembic/
+├── versions/
+│   └── 7dde9c99ac58_add_all_tables_to_apply_data_migration.py
+├── env.py
+└── script.py.mako
 ```
 
 ## Requirements
@@ -72,9 +81,43 @@ app/
    ACCESS_TOKEN_EXPIRE_MINUTES=30
    ```
 
-4. Run the application:
+4. Set up the database using Alembic:
+   ```
+   alembic upgrade head
+   ```
+
+5. Run the application:
    ```
    uvicorn app.main:app --reload
+   ```
+
+## Database Migrations
+
+This project uses Alembic for database migrations. Here are the common commands:
+
+1. Create a new migration:
+   ```
+   alembic revision --autogenerate -m "description of changes"
+   ```
+
+2. Apply migrations:
+   ```
+   alembic upgrade head
+   ```
+
+3. Rollback to a previous version:
+   ```
+   alembic downgrade -1
+   ```
+
+4. Check current version:
+   ```
+   alembic current
+   ```
+
+5. View migration history:
+   ```
+   alembic history
    ```
 
 ## API Endpoints
@@ -90,8 +133,8 @@ app/
 
 ### Posts
 
-- `GET /posts/`: Get all posts
-- `GET /posts/{id}`: Get a specific post
+- `GET /posts/`: Get all posts (with vote counts)
+- `GET /posts/{id}`: Get a specific post (with vote count)
 - `POST /posts/`: Create a new post
 - `PUT /posts/{id}`: Update a post
 - `DELETE /posts/{id}`: Delete a post
@@ -146,12 +189,25 @@ Authorization: Bearer {token}
 }
 ```
 
+### CORS Configuration
+The API is configured with CORS middleware to allow cross-origin requests:
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
 ## Security
 
 - Password encryption using Bcrypt
 - Authentication using JWT
 - User validation before operations
 - Post ownership verification before editing or deletion
+- CORS configuration for secure cross-origin requests
 
 ## Future Development
 
@@ -160,14 +216,14 @@ Authorization: Bearer {token}
 - Set up Joins in SQLAlchemy for related data
 - Optimize "Get One" endpoint with Joins
 
-### Database Migration
-- Implement Alembic for database schema changes
-- Set up Alembic migration system
-- Disable SQLAlchemy auto-create engine
-- Perform Alembic migrations on production database
-
-### Frontend Integration
-- Implement CORS for frontend communication
+### Cloud Deployment
+- Deploy to Heroku
+- Create Heroku app and configure
+- Set up Heroku Procfile
+- Add Postgres database on Heroku
+- Configure environment variables in Heroku
+- Run Alembic migrations on Heroku Postgres
+- Automate code deployment to production
 
 ### Version Control & CI/CD
 - Set up Git for version control
@@ -179,15 +235,6 @@ Authorization: Bearer {token}
 - Build Docker images in CI pipeline
 - Automate deployment to Heroku
 - Handle failing tests in pipeline
-
-### Cloud Deployment
-- Deploy to Heroku
-- Create Heroku app and configure
-- Set up Heroku Procfile
-- Add Postgres database on Heroku
-- Configure environment variables in Heroku
-- Run Alembic migrations on Heroku Postgres
-- Automate code deployment to production
 
 ### Self-Hosted Deployment
 - Set up Ubuntu VM for deployment
